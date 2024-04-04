@@ -1,0 +1,9 @@
+apiVersion: "kube.rs/v1"
+kind: Simulation
+metadata:
+  name: example-simulation
+spec:
+  devices: 100
+  data_points: 10
+  frequency_secs: 5
+  seed: 123456789
