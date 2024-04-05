@@ -21,9 +21,9 @@ pub fn get_num(env_variable: &str, default: usize) -> usize {
 impl Settings {
     pub fn new() -> Settings {
         Settings {
-            broker_url: get("URL", "mqtt://localhost:1883"),
-            broker_user: get("USER", "mqtt"),
-            broker_pass: get("PASS", "pass"),
+            broker_url: get("BROKER_URL", "mqtt://localhost:1883"),
+            broker_user: get("BROKER_USER", "mqtt"),
+            broker_pass: get("BROKER_PASS", "pass"),
             otlp_collector: std::env::var("OTLP_ENDPOINT").ok(),
             otlp_auth: std::env::var("OLTP_AUTH").ok(),
         }

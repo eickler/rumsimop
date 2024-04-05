@@ -1,5 +1,5 @@
 use futures::StreamExt;
-use k8s_openapi::api::apps::v1::StatefulSet;
+use k8s_openapi::api::{apps::v1::StatefulSet, core::v1::Secret};
 use kube::{
     api::PostParams,
     runtime::controller::{Action, Controller},
@@ -8,7 +8,7 @@ use kube::{
 use simulation::Simulation;
 use std::{sync::Arc, time::Duration};
 
-use crate::statefulset::create_owned_statefulset;
+use crate::statefulset::{get_owned_statefulset, get_secret};
 
 mod settings;
 mod simulation;
@@ -39,8 +39,16 @@ async fn main() -> Result<(), kube::Error> {
 
 async fn reconcile(sim: Arc<Simulation>, ctx: Arc<Data>) -> Result<Action> {
     println!("reconcile request: {}", sim.name_any());
+    let secrets = Api::<Secret>::namespaced(ctx.client.clone(), "default");
+    let secret = get_secret();
+    let pp = PostParams::default();
+    match secrets.create(&pp, &secret).await {
+        Ok(_) => println!("Created secret"),
+        Err(e) => eprintln!("Failed to create secret: {}", e),
+    }
+
     let statefulsets: Api<StatefulSet> = Api::namespaced(ctx.client.clone(), "default");
-    let statefulset = create_owned_statefulset(sim);
+    let statefulset = get_owned_statefulset(sim);
     let pp = PostParams::default();
     match statefulsets.create(&pp, &statefulset).await {
         Ok(_) => println!("Created statefulset"),
