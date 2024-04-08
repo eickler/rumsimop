@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: "{{ include "rumsimop.fullname" . }}"
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: "{{ include "rumsimop.name" . }}"
+  template:
+    metadata:
+      labels:
+        app: "{{ include "rumsimop.name" . }}"
+    spec:
+      containers:
+        - name: rumsimop
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          env:
+            - name: BROKER_URL
+              value: "{{ .Values.broker.url }}"
+            - name: BROKER_USER
+              value: "{{ .Values.broker.user }}"
+            - name: BROKER_PASS
+              value: "{{ .Values.broker.pass }}"
+            - name: OTLP_COLLECTOR
+              value: "{{ .Values.otlp.collector }}"
+            - name: OTLP_AUTH
+              value: "{{ .Values.otlp.auth }}"

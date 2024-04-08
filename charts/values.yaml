@@ -1,0 +1,14 @@
+replicaCount: 1
+
+image:
+  repository: eickler/rumsimop
+  tag: latest
+
+broker:
+  url: "mqtt://mqtt-broker:1883"
+  user: "mqtt"
+  pass: "pass"
+
+otlp:
+  collector: ""
+  auth: ""

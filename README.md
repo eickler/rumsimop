@@ -5,7 +5,7 @@
 Install the CRD for simulation workloads into your cluster.
 
 ```
-cargo run --bin crdgen | kubectl apply -f -
+kubectl apply -f simulations.crd
 ```
 
 Run the operator (TBD: create a chart).
@@ -54,10 +54,10 @@ When you create a simulation, the operator
 
 In the operator:
 
-- Add observability.
+- Create helm charts for the operator and add them to a public registry. Add CI/CD
 - Test if multiple simulations can run concurrently (i.e. client ID, device IDs, does this work?)
 - Add test cases
-- Create helm charts for the operator and add them to a public registry.
+- Add observability? Anything specific required here? The results are pretty much observable.
 - Check/fix running multiple operators in the same cluster (i.e. multiple MQTT destinations).
 - Improve docs.
 
