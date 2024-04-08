@@ -1,4 +1,4 @@
-apiVersion: "kube.rs/v1"
+apiVersion: "rumsim.io/v1"
 kind: Simulation
 metadata:
   name: example-simulation

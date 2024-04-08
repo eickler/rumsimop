@@ -3,7 +3,7 @@ use kube::CustomResource;
 use schemars::JsonSchema;
 
 #[derive(CustomResource, Deserialize, Serialize, Clone, Debug, JsonSchema)]
-#[kube(kind = "Simulation", group = "rumsim", version = "v1", namespaced)]
+#[kube(kind = "Simulation", group = "rumsim.io", version = "v1", namespaced)]
 pub struct SimulationSpec {
     pub devices: u64,
     pub data_points: u64,

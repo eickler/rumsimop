@@ -1,36 +1,67 @@
-# rumsimop: A Kubernetes operator for creating simulated MQTT workloads
+# rumsimop: A K8S operator for simulating MQTT workloads
 
-Install the CRD for defining simulation workloads into your cluster.
+## Quickstart
+
+Install the CRD for simulation workloads into your cluster.
 
 ```
 cargo run --bin crdgen | kubectl apply -f -
 ```
 
-Install the operator (TBD):
+Run the operator (TBD: create a chart).
 
 ```
-helm install rumsimop charts \
-  --set BROKER_URL=mqtt://mybroker.com:1883
-  --set BROKER_USER=<user>
-  --set BROKER_PASS=<pass>
+export BROKER_URL=<mqtt://localhost:1883>
+export BROKER_USER=<mqtt>
+export BROKER_PASS=<pass>
+cargo run --bin rumsimop
 ```
-
-Optionally: Monitor through OTLP: OTLP_COLLECTOR, OTLP_AUTH.
 
 Run a workload:
 
 ```
-kubectl apply -f example_simulation.yaml
+kubectl create namespace mysimulation
+kubectl apply -n mysimulation -f example_simulation.yaml
 ```
 
-Kubernetes operator for running the Rust MQTT simulator rumsim
-
-Install with
+Check the workload:
 
 ```
-cargo run --bin crdgen | kubectl apply -f -
+kubectl get simulation -n mysimulation example-simulation
+kubectl get statefulset -n mysimulation example-simulation
+kubectl get secret -n mysimulation example-simulation
+kubectl get pods -n mysimulation
 ```
 
-Ideas/notes:
+Stop the workload:
 
-- Namespace handling! (simulation per namespace?)
+```
+kubectl delete simulation -n mysimulation example-simulation
+```
+
+## Functionality
+
+When you create a simulation, the operator
+
+- Installs a secret with the broker credentials using the namespace and name of the simulation.
+- Install a statefulset with the broker URL and all further parameters using the namespace and name of the simulation.
+- The number of replicas in the statefulset will correspond to the requested workload. Currently, we assume that each pod can emit 100.000 MQTT messages per second (hardcoded).
+- You can enable OTLP tracing and metrics on the operator and the pods by setting
+  - OTLP_COLLECTOR: URL of the OTLP collector.
+  - OTLP_AUTH: Authentication string for the OTLP collector.
+
+## Next steps
+
+In the operator:
+
+- Add observability.
+- Test if multiple simulations can run concurrently (i.e. client ID, device IDs, does this work?)
+- Add test cases
+- Create helm charts for the operator and add them to a public registry.
+- Check/fix running multiple operators in the same cluster (i.e. multiple MQTT destinations).
+- Improve docs.
+
+In the simulator:
+
+- Fix for using the updated environment variables and run method (no command parsing).
+- Fix for running multiple simulations in parallel (i.e., client ID/device ID?)

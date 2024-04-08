@@ -1,5 +1,4 @@
-use crate::{settings, simulation::SimulationSpec, Simulation};
-use base64::prelude::*;
+use crate::{settings, Simulation};
 use k8s_openapi::{
     api::{
         apps::v1::StatefulSet,
@@ -7,15 +6,14 @@ use k8s_openapi::{
     },
     ByteString,
 };
-use kube::{api::ObjectMeta, Resource};
-use std::{collections::BTreeMap, sync::Arc};
+use kube::{api::ObjectMeta, Resource, ResourceExt};
+use std::collections::BTreeMap;
 
 const NAME: &str = "rumsim";
-const SECRET: &str = "rumsim-credentials";
 const USER_PROPERTY: &str = "user";
 const PASS_PROPERTY: &str = "pass";
 const IMAGE: &str = "eickler/rumsim:latest";
-const POD_CAPACITY: u64 = 100000;
+const POD_CAPACITY_SECS: u64 = 100000;
 
 fn get_name() -> Option<BTreeMap<String, String>> {
     Some(
@@ -71,8 +69,9 @@ fn get_field_ref(name: &str, field: &str) -> EnvVar {
     }
 }
 
-fn get_variables(sim: &SimulationSpec, devices: u64) -> Vec<EnvVar> {
+fn get_variables(simobj: &Simulation, devices: u64) -> Vec<EnvVar> {
     let settings = settings::Settings::new();
+    let sim = &simobj.spec;
 
     vec![
         // Simulation-related variables
@@ -83,8 +82,8 @@ fn get_variables(sim: &SimulationSpec, devices: u64) -> Vec<EnvVar> {
         get_var_u64("SIM_RUNS", sim.runs.unwrap_or(0)),
         // MQTT-related variables
         get_var_str("BROKER_URL", &settings.broker_url),
-        get_secret_ref("BROKER_USER", SECRET, USER_PROPERTY),
-        get_secret_ref("BROKER_PASS", SECRET, PASS_PROPERTY),
+        get_secret_ref("BROKER_USER", &simobj.name_any(), USER_PROPERTY),
+        get_secret_ref("BROKER_PASS", &simobj.name_any(), PASS_PROPERTY),
         get_field_ref("BROKER_CLIENT_ID", "metadata.name"),
         get_var_u64("BROKER_QOS", sim.qos.unwrap_or(1) as u64),
         // OTLP-related variables
@@ -98,18 +97,26 @@ fn get_variables(sim: &SimulationSpec, devices: u64) -> Vec<EnvVar> {
 
 fn to_byte_string(s: &str) -> ByteString {
     ByteString {
-        0: BASE64_STANDARD.encode(s).as_bytes().to_vec(),
+        0: s.as_bytes().to_vec(),
     }
 }
 
-pub fn get_secret() -> k8s_openapi::api::core::v1::Secret {
+pub fn get_metadata(sim: &Simulation) -> ObjectMeta {
+    let oref = sim.controller_owner_ref(&()).unwrap();
+
+    ObjectMeta {
+        name: Some(sim.name_any()),
+        owner_references: Some(vec![oref]),
+        ..Default::default()
+    }
+}
+
+pub fn get_secret(sim: &Simulation) -> k8s_openapi::api::core::v1::Secret {
     let settings = settings::Settings::new();
 
+    // kube.rs kindly does the base64 encoding for us.
     k8s_openapi::api::core::v1::Secret {
-        metadata: ObjectMeta {
-            name: Some(SECRET.to_string()),
-            ..Default::default()
-        },
+        metadata: get_metadata(sim),
         data: Some(
             [
                 (USER_PROPERTY, settings.broker_user),
@@ -123,16 +130,14 @@ pub fn get_secret() -> k8s_openapi::api::core::v1::Secret {
     }
 }
 
-pub fn get_owned_statefulset(sim: Arc<Simulation>) -> StatefulSet {
-    let oref = sim.controller_owner_ref(&()).unwrap();
-    let replicas = sim.spec.devices * sim.spec.data_points / sim.spec.frequency_secs / POD_CAPACITY;
+pub fn get_statefulset(sim: &Simulation) -> StatefulSet {
+    // Calculate the number of replicas needed.
+    let replicas = (sim.spec.devices * sim.spec.data_points) as f64
+        / (sim.spec.frequency_secs * POD_CAPACITY_SECS) as f64;
+    let replicas = replicas.ceil() as u64;
 
     StatefulSet {
-        metadata: ObjectMeta {
-            name: Some("rumsim-statefulset".to_string()),
-            owner_references: Some(vec![oref]),
-            ..Default::default()
-        },
+        metadata: get_metadata(sim),
         spec: Some(k8s_openapi::api::apps::v1::StatefulSetSpec {
             service_name: NAME.to_string(),
             replicas: Some(replicas as i32),
@@ -149,7 +154,7 @@ pub fn get_owned_statefulset(sim: Arc<Simulation>) -> StatefulSet {
                     containers: vec![k8s_openapi::api::core::v1::Container {
                         name: NAME.to_string(),
                         image: Some(IMAGE.to_string()),
-                        env: Some(get_variables(&sim.spec, sim.spec.devices / replicas as u64)),
+                        env: Some(get_variables(&sim, sim.spec.devices / replicas as u64)),
                         ..Default::default()
                     }],
                     ..Default::default()

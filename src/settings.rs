@@ -11,13 +11,6 @@ pub fn get(env_variable: &str, default: &str) -> String {
     std::env::var(env_variable).unwrap_or(default.to_string())
 }
 
-pub fn get_num(env_variable: &str, default: usize) -> usize {
-    std::env::var(env_variable)
-        .unwrap_or(default.to_string())
-        .parse()
-        .unwrap() // It's OK to panic if someone sets a broken number in the environment.
-}
-
 impl Settings {
     pub fn new() -> Settings {
         Settings {
