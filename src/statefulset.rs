@@ -80,6 +80,7 @@ fn get_variables(simobj: &Simulation, devices: u64) -> Vec<EnvVar> {
         get_var_u64("SIM_FREQUENCY_SECS", sim.frequency_secs),
         get_var_u64("SIM_WAIT_TIME_SECS", sim.wait_time_secs.unwrap_or(0)),
         get_var_u64("SIM_RUNS", sim.runs.unwrap_or(0)),
+        get_var_u64("SIM_SEED", sim.seed.unwrap_or(1)),
         // MQTT-related variables
         get_var_str("BROKER_URL", &settings.broker_url),
         get_secret_ref("BROKER_USER", &simobj.name_any(), USER_PROPERTY),
