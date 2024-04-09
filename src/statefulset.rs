@@ -4,6 +4,7 @@ use k8s_openapi::{
         apps::v1::StatefulSet,
         core::v1::{EnvVar, EnvVarSource, SecretKeySelector},
     },
+    chrono::{self, Utc},
     ByteString,
 };
 use kube::{api::ObjectMeta, Resource, ResourceExt};
@@ -72,13 +73,14 @@ fn get_field_ref(name: &str, field: &str) -> EnvVar {
 fn get_variables(simobj: &Simulation, devices: u64) -> Vec<EnvVar> {
     let settings = settings::Settings::new();
     let sim = &simobj.spec;
+    let start_time = Utc::now() + chrono::Duration::seconds(sim.wait_time_secs.unwrap_or(0) as i64);
 
     vec![
         // Simulation-related variables
         get_var_u64("SIM_DEVICES", devices),
         get_var_u64("SIM_DATA_POINTS", sim.data_points),
         get_var_u64("SIM_FREQUENCY_SECS", sim.frequency_secs),
-        get_var_u64("SIM_WAIT_TIME_SECS", sim.wait_time_secs.unwrap_or(0)),
+        get_var_str("SIM_START_TIME", &start_time.to_rfc3339()),
         get_var_u64("SIM_RUNS", sim.runs.unwrap_or(0)),
         get_var_u64("SIM_SEED", sim.seed.unwrap_or(1)),
         // MQTT-related variables

@@ -54,14 +54,9 @@ When you create a simulation, the operator
 
 In the operator:
 
-- Create helm charts for the operator and add them to a public registry. Add CI/CD
+- Test helm charts for the operator and add them to a public registry. Add CI/CD
 - Test if multiple simulations can run concurrently (i.e. client ID, device IDs, does this work?)
 - Add test cases
 - Add observability? Anything specific required here? The results are pretty much observable.
 - Check/fix running multiple operators in the same cluster (i.e. multiple MQTT destinations).
 - Improve docs.
-
-In the simulator:
-
-- Fix for using the updated environment variables and run method (no command parsing).
-- Fix for running multiple simulations in parallel (i.e., client ID/device ID?)
