@@ -1,3 +1,5 @@
+**This is WIP.**
+
 # rumsimop: A K8S operator for simulating MQTT workloads
 
 ## Quickstart
@@ -5,23 +7,30 @@
 Install the CRD for simulation workloads into your cluster.
 
 ```
-kubectl apply -f simulations.crd
+kubectl apply -f https://raw.githubusercontent.com/eickler/rumsimop/main/simulations.crd
+kubectl get crd simulations.rumsim.io
 ```
 
-Run the operator (TBD: create a chart).
+Install the operator into your K8S cluster (replace the values with the ones required for your MQTT installation):
 
 ```
-export BROKER_URL=<mqtt://localhost:1883>
-export BROKER_USER=<mqtt>
-export BROKER_PASS=<pass>
-cargo run --bin rumsimop
+helm repo add eickler-charts https://eickler.github.io/charts/
+helm repo update
+helm install \
+  --set broker.url=mqtt://emqx-listeners:1883 \
+  --set broker.user=mqtt \
+  --set broker.pass=pass \
+  rumsimop eickler-charts/rumsimop
+kubectl get deployment rumsimop
 ```
+
+(Optionally, set otlp.collector to the URL of your OTLP collector and otlp.auth to the credentials for the collector.)
 
 Run a workload:
 
 ```
 kubectl create namespace mysimulation
-kubectl apply -n mysimulation -f example_simulation.yaml
+kubectl apply -n mysimulation -f https://raw.githubusercontent.com/eickler/rumsimop/main/example_simulation.yaml
 ```
 
 Check the workload:
@@ -39,6 +48,15 @@ Stop the workload:
 kubectl delete simulation -n mysimulation example-simulation
 ```
 
+Alternatively, run directly:
+
+```
+export BROKER_URL=<mqtt://localhost:1883>
+export BROKER_USER=<mqtt>
+export BROKER_PASS=<pass>
+cargo run --bin rumsimop
+```
+
 ## Functionality
 
 When you create a simulation, the operator
@@ -53,9 +71,8 @@ When you create a simulation, the operator
 
 ## Next steps
 
-In the operator:
-
-- Test helm charts for the operator and add them to a public registry -- gh pages?
+- Test the chart
+- Fix the chart to use a secret instead of a verbatim MQTT user/pass.
 - Test if multiple simulations can run concurrently (i.e. client ID, device IDs, does this work?)
 - Add test cases
 - Add observability? Anything specific required here? The results are pretty much observable.
