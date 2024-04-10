@@ -1,0 +1,48 @@
+name: Publish Helm chart for rumsimop
+
+on:
+  push:
+    branches: ["master"]
+    tags: ["v*.*.*"]
+  pull_request:
+    branches: ["master"]
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Helm
+        uses: Azure/setup-helm@v4
+
+      - name: Package Helm chart
+        run: |
+          helm package charts --destination . --version ${{ github.ref }}
+
+      - name: Checkout "charts" repository
+        uses: actions/checkout@v3
+        with:
+          repository: eickler/charts
+          token: ${{ secrets.GITHUB_TOKEN }}
+          path: charts-repo
+
+      - name: Copy Helm chart to "charts" repository
+        run: |
+          cp *.tgz charts-repo/
+
+      - name: Update Helm repo index
+        run: |
+          cd charts-repo
+          helm repo index .
+
+      - name: Push changes
+        run: |
+          cd charts-repo
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add .
+          git commit -m "Update Helm chart"
+          git push
