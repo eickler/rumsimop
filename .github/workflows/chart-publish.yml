@@ -3,12 +3,12 @@ name: Helm
 on:
   push:
     branches: ["main"]
-    #paths:
-    #  - "charts/**"
+    paths:
+      - "charts/**"
   pull_request:
     branches: ["main"]
-    #paths:
-    #  - "charts/**"
+    paths:
+      - "charts/**"
   release:
     types: [created]
 
