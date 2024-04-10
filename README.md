@@ -49,12 +49,13 @@ When you create a simulation, the operator
 - You can enable OTLP tracing and metrics on the operator and the pods by setting
   - OTLP_COLLECTOR: URL of the OTLP collector.
   - OTLP_AUTH: Authentication string for the OTLP collector.
+- You can choose a version of the simulator to be used by setting RUMSIM_VERSION (default "latest").
 
 ## Next steps
 
 In the operator:
 
-- Test helm charts for the operator and add them to a public registry. Add CI/CD
+- Test helm charts for the operator and add them to a public registry -- gh pages?
 - Test if multiple simulations can run concurrently (i.e. client ID, device IDs, does this work?)
 - Add test cases
 - Add observability? Anything specific required here? The results are pretty much observable.

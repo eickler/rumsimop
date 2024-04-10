@@ -1,3 +1,6 @@
+#[macro_use]
+extern crate lazy_static;
+
 use futures::StreamExt;
 use k8s_openapi::api::{apps::v1::StatefulSet, core::v1::Secret};
 use kube::{

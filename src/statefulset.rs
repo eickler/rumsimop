@@ -8,13 +8,18 @@ use k8s_openapi::{
     ByteString,
 };
 use kube::{api::ObjectMeta, Resource, ResourceExt};
+use settings::Settings;
 use std::collections::BTreeMap;
 
 const NAME: &str = "rumsim";
 const USER_PROPERTY: &str = "user";
 const PASS_PROPERTY: &str = "pass";
-const IMAGE: &str = "eickler/rumsim:latest";
 const POD_CAPACITY_SECS: u64 = 100000;
+
+lazy_static! {
+    static ref SETTINGS: Settings = Settings::new();
+    static ref IMAGE: String = format!("eickler/rumsim:{}", SETTINGS.image_version);
+}
 
 fn get_name() -> Option<BTreeMap<String, String>> {
     Some(
@@ -71,7 +76,6 @@ fn get_field_ref(name: &str, field: &str) -> EnvVar {
 }
 
 fn get_variables(simobj: &Simulation, devices: u64) -> Vec<EnvVar> {
-    let settings = settings::Settings::new();
     let sim = &simobj.spec;
     let start_time = Utc::now() + chrono::Duration::seconds(sim.wait_time_secs.unwrap_or(0) as i64);
 
@@ -84,7 +88,7 @@ fn get_variables(simobj: &Simulation, devices: u64) -> Vec<EnvVar> {
         get_var_u64("SIM_RUNS", sim.runs.unwrap_or(0)),
         get_var_u64("SIM_SEED", sim.seed.unwrap_or(1)),
         // MQTT-related variables
-        get_var_str("BROKER_URL", &settings.broker_url),
+        get_var_str("BROKER_URL", &SETTINGS.broker_url),
         get_secret_ref("BROKER_USER", &simobj.name_any(), USER_PROPERTY),
         get_secret_ref("BROKER_PASS", &simobj.name_any(), PASS_PROPERTY),
         get_field_ref("BROKER_CLIENT_ID", "metadata.name"),
@@ -92,9 +96,12 @@ fn get_variables(simobj: &Simulation, devices: u64) -> Vec<EnvVar> {
         // OTLP-related variables
         get_var_str(
             "OTLP_ENDPOINT",
-            &settings.otlp_collector.unwrap_or("".to_string()),
+            &SETTINGS.otlp_collector.clone().unwrap_or("".to_string()),
         ),
-        get_var_str("OTLP_AUTH", &settings.otlp_auth.unwrap_or("".to_string())),
+        get_var_str(
+            "OTLP_AUTH",
+            &SETTINGS.otlp_auth.clone().unwrap_or("".to_string()),
+        ),
     ]
 }
 
@@ -115,15 +122,13 @@ pub fn get_metadata(sim: &Simulation) -> ObjectMeta {
 }
 
 pub fn get_secret(sim: &Simulation) -> k8s_openapi::api::core::v1::Secret {
-    let settings = settings::Settings::new();
-
     // kube.rs kindly does the base64 encoding for us.
     k8s_openapi::api::core::v1::Secret {
         metadata: get_metadata(sim),
         data: Some(
             [
-                (USER_PROPERTY, settings.broker_user),
-                (PASS_PROPERTY, settings.broker_pass),
+                (USER_PROPERTY, SETTINGS.broker_user.clone()),
+                (PASS_PROPERTY, SETTINGS.broker_pass.clone()),
             ]
             .iter()
             .map(|(k, v)| (k.to_string(), to_byte_string(&v)))
