@@ -21,7 +21,7 @@ jobs:
 
       - name: Package Helm chart
         run: |
-          helm package charts --destination . --version ${{ github.ref }}
+          helm package charts --destination . # --version ${{ github.ref }}
 
       - name: Checkout "charts" repository
         uses: actions/checkout@v3
