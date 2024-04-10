@@ -1,4 +1,4 @@
-name: Publish Helm chart for rumsimop
+name: Helm
 
 on:
   push:
