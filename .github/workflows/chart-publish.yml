@@ -3,8 +3,12 @@ name: Helm
 on:
   push:
     branches: ["main"]
+    paths:
+      - "charts/**"
   pull_request:
     branches: ["main"]
+    paths:
+      - "charts/**"
   release:
     types: [created]
 
@@ -27,7 +31,7 @@ jobs:
         uses: actions/checkout@v3
         with:
           repository: eickler/charts
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.CHARTS_TOKEN }}
           path: charts-repo
 
       - name: Copy Helm chart to "charts" repository
