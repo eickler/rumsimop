@@ -1,4 +1,4 @@
-use crate::{settings, Simulation};
+use crate::{settings::SETTINGS, Simulation};
 use k8s_openapi::{
     api::{
         apps::v1::StatefulSet,
@@ -8,7 +8,6 @@ use k8s_openapi::{
     ByteString,
 };
 use kube::{api::ObjectMeta, Resource, ResourceExt};
-use settings::Settings;
 use std::collections::BTreeMap;
 
 const NAME: &str = "rumsim";
@@ -16,11 +15,6 @@ const USER_PROPERTY: &str = "user";
 const PASS_PROPERTY: &str = "pass";
 pub const PULL_SECRET: &str = "regcred";
 const POD_CAPACITY_SECS: u64 = 100000;
-
-lazy_static! {
-    static ref SETTINGS: Settings = Settings::new();
-    static ref IMAGE: String = format!("ghcr.io/eickler/rumsim:{}", SETTINGS.image_version);
-}
 
 fn get_name() -> Option<BTreeMap<String, String>> {
     Some(
@@ -103,6 +97,10 @@ fn get_variables(simobj: &Simulation, devices: u64) -> Vec<EnvVar> {
             "OTLP_AUTH",
             &SETTINGS.otlp_auth.clone().unwrap_or("".to_string()),
         ),
+        get_var_str(
+            "RUST_LOG",
+            &SETTINGS.rust_log.clone().unwrap_or("info".to_string()),
+        ),
     ]
 }
 
@@ -140,6 +138,8 @@ pub fn get_secret(sim: &Simulation) -> k8s_openapi::api::core::v1::Secret {
 }
 
 pub fn get_statefulset(sim: &Simulation) -> StatefulSet {
+    let image = format!("ghcr.io/eickler/rumsim:{}", SETTINGS.image_version);
+
     // Calculate the number of replicas needed.
     let replicas = (sim.spec.devices * sim.spec.data_points) as f64
         / (sim.spec.frequency_secs * POD_CAPACITY_SECS) as f64;
@@ -167,7 +167,7 @@ pub fn get_statefulset(sim: &Simulation) -> StatefulSet {
                     ]),
                     containers: vec![k8s_openapi::api::core::v1::Container {
                         name: NAME.to_string(),
-                        image: Some(IMAGE.to_string()),
+                        image: Some(image),
                         env: Some(get_variables(&sim, sim.spec.devices / replicas as u64)),
                         ..Default::default()
                     }],

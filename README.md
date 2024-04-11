@@ -30,7 +30,10 @@ helm install \
 kubectl get deployment rumsimop
 ```
 
-(Optionally, set otlp.collector to the URL of your OTLP collector and otlp.auth to the credentials for the collector.)
+Optionally, set
+
+- otlp.collector to the URL of your OTLP collector and otlp.auth to the credentials for the collector.
+- loglevel to the desired (Rust) log level, which will also be propagated to the simulator.
 
 Run a workload:
 
@@ -80,8 +83,6 @@ When you create a simulation, the operator
 ## Next steps
 
 - Test the chart
-- Add observability -- at least trace the reconciliations.
-- Fix the chart to use a secret instead of a verbatim MQTT user/pass.
 - Test if multiple simulations can run concurrently (i.e. client ID, device IDs, does this work?)
 - Add test cases
 - Check/fix running multiple operators in the same cluster (i.e. multiple MQTT destinations).

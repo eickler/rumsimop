@@ -34,3 +34,5 @@ spec:
               value: "{{ .Values.otlp.collector }}"
             - name: OTLP_AUTH
               value: "{{ .Values.otlp.auth }}"
+            - name: RUST_LOG
+              value: "{{ .Values.loglevel }}"

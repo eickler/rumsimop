@@ -13,3 +13,5 @@ broker:
 otlp:
   collector: ""
   auth: ""
+
+loglevel: "info"
