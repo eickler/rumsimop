@@ -14,6 +14,7 @@ spec:
     spec:
       imagePullSecrets:
         - name: "{{ .Values.image.pullSecrets }}"
+      serviceAccountName: simulation-operator
       containers:
         - name: rumsimop
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
