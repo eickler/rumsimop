@@ -21,6 +21,7 @@ use crate::{
     statefulset::{get_secret, get_statefulset, PULL_SECRET},
 };
 
+mod envbuilder;
 mod observability;
 mod settings;
 mod simulation;

@@ -9,7 +9,7 @@ pub struct SimulationSpec {
     pub data_points: u64,
     pub frequency_secs: u64,
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub qos: Option<u8>,
+    pub qos: Option<u64>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub seed: Option<u64>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
