@@ -21,9 +21,15 @@ spec:
             - name: BROKER_URL
               value: "{{ .Values.broker.url }}"
             - name: BROKER_USER
-              value: "{{ .Values.broker.user }}"
+              valueFrom:
+                secretKeyRef:
+                  name: broker-secret
+                  key: BROKER_USER
             - name: BROKER_PASS
-              value: "{{ .Values.broker.pass }}"
+              valueFrom:
+                secretKeyRef:
+                  name: broker-secret
+                  key: BROKER_PASS
             - name: OTLP_COLLECTOR
               value: "{{ .Values.otlp.collector }}"
             - name: OTLP_AUTH
