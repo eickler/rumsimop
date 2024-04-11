@@ -14,6 +14,7 @@ use std::collections::BTreeMap;
 const NAME: &str = "rumsim";
 const USER_PROPERTY: &str = "user";
 const PASS_PROPERTY: &str = "pass";
+pub const PULL_SECRET: &str = "regcred";
 const POD_CAPACITY_SECS: u64 = 100000;
 
 lazy_static! {
@@ -159,6 +160,11 @@ pub fn get_statefulset(sim: &Simulation) -> StatefulSet {
                     ..Default::default()
                 }),
                 spec: Some(k8s_openapi::api::core::v1::PodSpec {
+                    image_pull_secrets: Some(vec![
+                        k8s_openapi::api::core::v1::LocalObjectReference {
+                            name: Some(PULL_SECRET.to_string()),
+                        },
+                    ]),
                     containers: vec![k8s_openapi::api::core::v1::Container {
                         name: NAME.to_string(),
                         image: Some(IMAGE.to_string()),

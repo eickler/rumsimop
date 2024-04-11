@@ -12,6 +12,8 @@ spec:
       labels:
         app: "{{ include "rumsimop.name" . }}"
     spec:
+      imagePullSecrets:
+        - name: "{{ .Values.image.pullSecrets }}"
       containers:
         - name: rumsimop
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
