@@ -11,6 +11,12 @@ kubectl apply -f https://raw.githubusercontent.com/eickler/rumsimop/main/simulat
 kubectl get crd simulations.rumsim.io
 ```
 
+Unfortunately, Github does not permit unauthenticated access to the Github Container Registry. Create a personal access token (classic) with the permission read:packages. Install the token as secret into your cluster to enable download of the images:
+
+```
+kubectl create secret docker-registry regcred --docker-server=ghcr.io --docker-username=GITHUB_USERNAME --docker-password=GITHUB_TOKEN
+```
+
 Install the operator into your K8S cluster (replace the values with the ones required for your MQTT installation):
 
 ```
@@ -24,7 +30,10 @@ helm install \
 kubectl get deployment rumsimop
 ```
 
-(Optionally, set otlp.collector to the URL of your OTLP collector and otlp.auth to the credentials for the collector.)
+Optionally, set
+
+- otlp.collector to the URL of your OTLP collector and otlp.auth to the credentials for the collector.
+- loglevel to the desired (Rust) log level, which will also be propagated to the simulator.
 
 Run a workload:
 
@@ -69,12 +78,12 @@ When you create a simulation, the operator
   - OTLP_AUTH: Authentication string for the OTLP collector.
 - You can choose a version of the simulator to be used by setting RUMSIM_VERSION (default "latest").
 
+## Known issues
+
 ## Next steps
 
 - Test the chart
-- Fix the chart to use a secret instead of a verbatim MQTT user/pass.
 - Test if multiple simulations can run concurrently (i.e. client ID, device IDs, does this work?)
 - Add test cases
-- Add observability? Anything specific required here? The results are pretty much observable.
 - Check/fix running multiple operators in the same cluster (i.e. multiple MQTT destinations).
 - Improve docs.

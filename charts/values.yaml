@@ -1,8 +1,9 @@
 replicaCount: 1
 
 image:
-  repository: eickler/rumsimop
+  repository: ghcr.io/eickler/rumsimop
   tag: latest
+  pullSecrets: regcred # Note: This value is currently also used in the code.
 
 broker:
   url: "mqtt://mqtt-broker:1883"
@@ -12,3 +13,5 @@ broker:
 otlp:
   collector: ""
   auth: ""
+
+loglevel: "info"
