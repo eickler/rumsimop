@@ -1,9 +1,6 @@
 use crate::{envbuilder::EnvVarBuilder, settings::SETTINGS, Simulation};
 use k8s_openapi::{
-    api::{
-        apps::v1::StatefulSet,
-        core::v1::{EnvVar, EnvVarSource, SecretKeySelector},
-    },
+    api::{apps::v1::StatefulSet, core::v1::EnvVar},
     chrono::{self, Utc},
     ByteString,
 };

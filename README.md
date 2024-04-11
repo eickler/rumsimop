@@ -82,7 +82,6 @@ When you create a simulation, the operator
 
 ## Next steps
 
-- Test the chart
 - Test if multiple simulations can run concurrently (i.e. client ID, device IDs, does this work?)
 - Add test cases
 - Check/fix running multiple operators in the same cluster (i.e. multiple MQTT destinations).
