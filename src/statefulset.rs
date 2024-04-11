@@ -18,7 +18,7 @@ const POD_CAPACITY_SECS: u64 = 100000;
 
 lazy_static! {
     static ref SETTINGS: Settings = Settings::new();
-    static ref IMAGE: String = format!("eickler/rumsim:{}", SETTINGS.image_version);
+    static ref IMAGE: String = format!("ghcr.io/eickler/rumsim:{}", SETTINGS.image_version);
 }
 
 fn get_name() -> Option<BTreeMap<String, String>> {
