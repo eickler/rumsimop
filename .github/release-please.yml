@@ -1,0 +1,27 @@
+name: Release Please
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: GoogleCloudPlatform/release-please-action@v2
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          release-type: rust
+          package-name: rumsimop
+          command: manifest
+      - name: Update Helm chart version
+        run: |
+          VERSION=$(cat version.txt)
+          yq eval -i ".version = \"$VERSION\"" charts/Chart.yaml
+      - name: Commit changes
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git commit -am "chore: release $VERSION"
+          git push
