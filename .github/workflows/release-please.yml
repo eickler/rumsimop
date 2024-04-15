@@ -16,10 +16,14 @@ jobs:
       - uses: google-github-actions/release-please-action@v4
         with:
           release-type: rust
+      - name: Get new version
+        id: version
+        run: |
+          VERSION=$(grep '^version =' Cargo.toml | head -1 | awk -F'"' '{print $2}')
+          echo "::set-output name=version::$VERSION"
       - name: Update Helm chart version
         run: |
-          VERSION=$(cat version.txt)
-          yq eval -i ".version = \"$VERSION\"" charts/Chart.yaml
+          yq eval -i ".version = \"${{ steps.version.outputs.version }}\"" charts/Chart.yaml
       - name: Commit changes
         run: |
           git config --local user.email "action@github.com"
