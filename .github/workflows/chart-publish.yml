@@ -18,7 +18,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4.1.1
 
       - name: Set up Helm
         uses: Azure/setup-helm@v4
@@ -28,7 +28,7 @@ jobs:
           helm package charts --destination . # --version ${{ github.ref }}
 
       - name: Checkout "charts" repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4.1.1
         with:
           repository: eickler/charts
           token: ${{ secrets.CHARTS_TOKEN }}
