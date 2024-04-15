@@ -1,20 +1,21 @@
-name: Release Please
 on:
   push:
     branches:
-      - master
+      - main
+
+permissions:
+  contents: write
+  pull-requests: write
+
+name: release-please
 
 jobs:
-  release:
+  release-please:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - uses: GoogleCloudPlatform/release-please-action@v2
+      - uses: google-github-actions/release-please-action@v4
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
           release-type: rust
-          package-name: rumsimop
-          command: manifest
       - name: Update Helm chart version
         run: |
           VERSION=$(cat version.txt)
