@@ -26,5 +26,7 @@ jobs:
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
-          git commit -am "chore: release $VERSION"
-          git push
+          if [[ `git status --porcelain` ]]; then
+            git commit -am "chore: release $VERSION"
+            git push
+          fi
