@@ -6,8 +6,8 @@ on:
 
 jobs:
   update-chart-version:
+    if: startsWith(github.event.pull_request.title, 'chore(main)')
     runs-on: ubuntu-latest
-    if: startsWith(github.event.pull_request.title, 'chore(main): release')
     steps:
       - uses: actions/checkout@v4.1.1
       - name: Update Helm chart version
