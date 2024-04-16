@@ -1,0 +1,24 @@
+name: Update Helm chart version on release please PR
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+
+jobs:
+  update-chart-version:
+    runs-on: ubuntu-latest
+    if: github.actor == 'release-please[bot]'
+    steps:
+      - uses: actions/checkout@v4.1.1
+      - name: Update Helm chart version
+        run: |
+          VERSION=$(grep '^version =' Cargo.toml | head -1 | awk -F'"' '{print $2}')
+          yq eval -i ".version = \"$VERSION\"" charts/Chart.yaml
+      - name: Commit changes
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          if [[ `git status --porcelain` ]]; then
+            git commit -am "chore: release $VERSION"
+            git push
+          fi
