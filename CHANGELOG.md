@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.5](https://github.com/eickler/rumsimop/compare/v0.1.4...v0.1.5) (2024-04-17)
+
+
+### Bug Fixes
+
+* Fix wrong variable name for OTLP endpoint ([0716a52](https://github.com/eickler/rumsimop/commit/0716a52a8b9d560bf628008ae992974f08720820))
+
 ## [0.1.4](https://github.com/eickler/rumsimop/compare/v0.1.3...v0.1.4) (2024-04-16)
 
 
