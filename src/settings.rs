@@ -23,7 +23,7 @@ impl Settings {
             broker_url: get("BROKER_URL", "mqtt://localhost:1883"),
             broker_user: get("BROKER_USER", "mqtt"),
             broker_pass: get("BROKER_PASS", "pass"),
-            otlp_collector: std::env::var("OTLP_ENDPOINT").ok(),
+            otlp_collector: std::env::var("OTLP_COLLECTOR").ok(),
             otlp_auth: std::env::var("OLTP_AUTH").ok(),
             rust_log: std::env::var("RUST_LOG").ok(),
             image_version: get("RUMSIM_VERSION", "latest"),
