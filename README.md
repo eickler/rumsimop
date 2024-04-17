@@ -83,6 +83,7 @@ When you create a simulation, the operator
 ## Next steps
 
 - Test if multiple simulations can run concurrently (i.e. client ID, device IDs, does this work?)
+- There is still a duplicate build on release, one for the PR merge of the release-please branch and one for the release itself. The first one should not be triggered. (Does not harm though.)
 - Add test cases
 - Check/fix running multiple operators in the same cluster (i.e. multiple MQTT destinations).
 - Improve docs.
